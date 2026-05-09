@@ -1,0 +1,94 @@
+name: CI — QA Automation Suite
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    # Run the full regression suite every day at 06:00 UTC
+    - cron: "0 6 * * *"
+
+jobs:
+  smoke:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Copy env file
+        run: cp .env.example .env
+
+      - name: Run smoke tests
+        run: pytest -m smoke --tb=short -q
+
+  regression:
+    name: Full Regression Suite
+    runs-on: ubuntu-latest
+    needs: smoke   # only run if smoke passes
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Copy env file
+        run: cp .env.example .env
+
+      - name: Run full test suite
+        run: |
+          pytest \
+            --alluredir=reports/allure-results \
+            --cov=src \
+            --cov-report=xml:reports/coverage.xml \
+            --cov-fail-under=80
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        if: always()   # upload even on test failure
+        with:
+          name: test-reports-${{ github.run_number }}
+          path: reports/
+          retention-days: 14
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: reports/coverage.xml
+          fail_ci_if_error: false
+
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install flake8
+        run: pip install flake8
+
+      - name: Lint
+        run: flake8 src/ tests/ --max-line-length=100 --ignore=E501
