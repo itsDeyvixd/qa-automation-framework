@@ -10,7 +10,6 @@ from src.schemas.api_schemas import (
 from src.utils.assertions import (
     assert_ok, assert_created, assert_not_found,
     assert_schema, assert_response_time, assert_list_not_empty,
-    assert_status,  # <- borra assert_json_key de aquí
 )
 from src.utils.data_factory import UserFactory
 
