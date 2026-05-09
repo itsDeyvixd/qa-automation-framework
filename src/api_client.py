@@ -24,8 +24,8 @@ class APIClient:
     """Thin wrapper around requests.Session with logging and shared config."""
 
     def __init__(self, base_url: str | None = None, token: str | None = None):
-        self.base_url = (base_url or os.getenv("BASE_URL", "https://reqres.in")) + os.getenv("API_VERSION", "/api")
-        self.timeout = int(os.getenv("REQUEST_TIMEOUT", 10))
+        
+        self.base_url = (base_url or os.getenv("BASE_URL", "https://dummyjson.com")) + os.getenv("API_VERSION", "")
         self.session = requests.Session()
         self.session.headers.update({
             "Content-Type": "application/json",
