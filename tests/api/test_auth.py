@@ -3,10 +3,10 @@ Tests for /auth/login endpoint — DummyJSON.
 """
 import pytest
 from src.api_client import APIClient
-from src.schemas.api_schemas import LOGIN_SUCCESS_RESPONSE, LOGIN_ERROR_RESPONSE
+from src.schemas.api_schemas import LOGIN_SUCCESS_RESPONSE
 from src.utils.assertions import (
-    assert_ok, assert_bad_request, assert_schema,
-    assert_response_time, assert_json_key, assert_status,
+    assert_ok, assert_schema,
+    assert_response_time, assert_json_key,
 )
 from src.utils.data_factory import AuthFactory
 
